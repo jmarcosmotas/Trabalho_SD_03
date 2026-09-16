@@ -5,8 +5,6 @@ from fastapi import HTTPException
 from database.database import get_db
 from sqlalchemy.orm import Session
 from services.audio_processor import processor_audio
-from services.audio_repository import get_all_audios, get_audio_by_id
-from uuid import UUID
 
 router = APIRouter()
 
@@ -17,6 +15,9 @@ router = APIRouter()
 #   -F "speed=1.5" \  AQUI COLOCA A VELOCIDADE DO VIDEO O USUARIO VAI DETERMINAR UM VALOR 
 #   -F "bitrate=128" O BITRATE O USUARIO TAMBEM VAI ESCOLHER UM VALOR 
 
+# EXEMPLO USANDO O CURL: 
+# curl -X POST http://localhost:8080/audios/receber-audio   -F "audio=@arunangshubanerjee-live-football-match-stadium-crowd-cheering-563439.mp3"   -F "processing_type=normalizacao"
+#  
 # -----------E RETORNADO PARA O CLIENTE O JSON COM O SEGUINTE FORMATO:----------
 # {
 #     "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -24,7 +25,7 @@ router = APIRouter()
 # }
 
 @router.post("/receber-audio")
-async def receive_audio(
+async def receive_audio_sent(
     audio: UploadFile = File(...),
     processing_type: str = Form(...),
     speed: float | None = Form(None),

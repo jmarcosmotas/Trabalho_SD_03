@@ -179,7 +179,7 @@ def create_ffmpeg_command(processing_type, path_file_original, path_file_process
 
     return path_file_processed, size_bytes_original, execute
 
-def processor_audio(db, audio, processing_type, speed=None, bitrate=None):
+async def processor_audio(db, audio, processing_type, speed=None, bitrate=None):
     # Cria um id para o AUDIO
     id_audio = uuid.uuid4()
 
@@ -209,7 +209,7 @@ def processor_audio(db, audio, processing_type, speed=None, bitrate=None):
     # Salva o arquivo com o arquivo original no caminho storage/data/UUID/original/
     path_file_original = f"{path_original}/audio.{extensao}"
     with open(path_file_original, "wb") as file:
-        file.write(audio.read())
+        file.write(await audio.read())
 
     path_file_processed = f"{path_processed}/audio.{extensao}"
 
@@ -232,12 +232,12 @@ def processor_audio(db, audio, processing_type, speed=None, bitrate=None):
     bitrate = get_bitrate(path_file_original)
 
     # gere a imagem de onda do arquivo original 
-    path_waveform_original = f"{path_file_original}/waveform.png"
+    path_waveform_original = f"{path_original}/waveform.png"
     generate_waveform(path_file_original, path_waveform_original)
 
     # gere a imagem de onda do arquivo processado
     path_waveform_processed = f"{path_processed}/waveform.png"
-    generate_waveform(path_processed, path_waveform_processed)
+    generate_waveform(path_file_processed, path_waveform_processed)
 
     # Criar os metadados no banco de dados
     create_audio(db,

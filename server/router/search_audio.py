@@ -29,19 +29,21 @@ router = APIRouter()
 #         "path_file_processed": "storage/2026-09-14/.../processed/audio.mp3"
 #     }
 # ]
-
 @router.get("/listar-todos-audios")
 def list_all_audios(db: Session = Depends(get_db)):
     try:
         audios = get_all_audios(db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return audios
-    
+
+    return [dict(audio._mapping) for audio in audios]
 
 # ----------O USUARIO VAI BUSCAR AS INFORMAÇOES DE UM AUDIO----------- 
 # o usuário envia na URL:
 # - audio_id → UUID que identifica o áudio.
+
+# EXEMPLO USANDO O CURL: 
+# curl http://localhost:8080/audios/busca-audio/fd5f4ab2-d1e4-4ba8-8793-b87dce980f7c4ba8-8793-b87dce980f7c
 
 # ---------O FAST-API RETORNA UM JSON-----------
 # {
@@ -66,17 +68,17 @@ def search_audio(audio_id: UUID, db: Session = Depends(get_db)):
 
     if not audio:
         raise HTTPException(status_code=404, detail="Áudio não encontrado")
-    # AS INFORMAÇOES PRESENTE NO BANCO PRETENCE AO AUDIO ORIGINAL
+
     return {
-        "nome_original": audio.nome_original,
-        "extensao": audio.extensao,
+        "nome_original": audio.original_name,
+        "extensao": audio.original_ext,
         "mime_type": audio.mime_type,
         "size_bytes": audio.size_bytes,
         "duration_sec": audio.duration_sec,
         "sample_rate": audio.sample_rate,
         "channels": audio.channels,
         "bitrate": audio.bitrate,
-        "data_time": audio.data_time,
+        "data_time": audio.created_at,
         "processing_type": audio.processing_type
     }
 
@@ -84,6 +86,9 @@ def search_audio(audio_id: UUID, db: Session = Depends(get_db)):
 # o usuário envia duas informações na URL:
 # audio_id → UUID que identifica o áudio.
 # tipo → informa se quer o áudio original ou processed.
+
+# EXEMPLO USANDO O CURL:
+# curl http://localhost:8080/audios/carregar-audio/e0d21174-869b-4060-ac37-ea885606b4b6/processed --output "/mnt/c/Users/jmarcos/Downloads/audio_processado.mp3"
 
 # ----------FAST-API RETORNA OS BYTES DO AUDIO PARA REPRODIZIR---------
 
@@ -110,6 +115,9 @@ def load_audio(audio_id: UUID, tipo: str, db: Session = Depends(get_db)):
 # o usuário envia duas informações na URL:
 # audio_id → UUID que identifica o áudio.
 # tipo → informa se quer o áudio original ou processed.
+
+# EXEMPLO USANDO O CURL:
+# curl http://localhost:8080/audios/carregar-imagem/e0d21174-869b-4060-ac37-ea885606b4b6/processed --output "/mnt/c/Users/jmarcos/Downloads/waveform_processed.png"
 
 # ----------FAST-API RETORNA OS BYTES DA IMAGEM PARA RENDERIZAR---------
 @router.get("/carregar-imagem/{audio_id}/{tipo}")

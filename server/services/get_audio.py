@@ -1,7 +1,8 @@
-from services.audio_repository import get_audio_paths_by_id
+# Esse arquivo contem as funçoes de busca 
+from services.audio_repository import get_audio_by_id
 
 def get_load_audios(db, audio_id, tipo):
-    audio = get_audio_paths_by_id(db, audio_id)
+    audio = get_audio_by_id(db, audio_id)
     if not audio:
         raise ValueError("Áudio não encontrado")
 
@@ -16,7 +17,7 @@ def get_load_audios(db, audio_id, tipo):
 
   
 def get_load_image(db, audio_id, tipo):
-    audio = get_audio_paths_by_id(db, audio_id)
+    audio = get_audio_by_id(db, audio_id)
     if not audio:
         raise ValueError("Áudio não encontrado")
 
