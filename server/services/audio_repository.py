@@ -40,3 +40,17 @@ def get_all_audios(db):
 def get_audio_by_id(db, audio_id):
     return db.query(Audio).filter(Audio.id == audio_id).first()
 
+def get_all_audios_full(db):
+    return db.query(Audio).order_by(Audio.created_at.desc()).all()
+
+def delete_audio(db, audio_id):
+    try:
+        audio = db.query(Audio).filter(Audio.id == audio_id).first()
+        if audio:
+            db.delete(audio)
+            db.commit()
+        return audio
+    except Exception:
+        db.rollback()
+        raise
+

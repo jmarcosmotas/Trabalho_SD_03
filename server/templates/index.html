@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Áudios Armazenados</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f5f7;
+            color: #1f2430;
+            margin: 0;
+            padding: 2rem;
+        }
+        h1 { margin-bottom: 0.25rem; }
+        .subtitle { color: #666; margin-top: 0; margin-bottom: 1.5rem; }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .card-header h2 { margin: 0; font-size: 1.1rem; }
+        .badge {
+            background: #e8ecff;
+            color: #3450d1;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .meta { color: #666; font-size: 0.85rem; margin: 0.25rem 0 1rem 0; }
+        .players {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 700px) {
+            .players { grid-template-columns: 1fr; }
+        }
+        .players h3 { font-size: 0.85rem; margin: 0 0 0.4rem 0; color: #444; }
+        .players audio { width: 100%; }
+        .players img {
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            border: 1px solid #eee;
+        }
+        .actions { margin-top: 1rem; text-align: right; }
+        .btn-delete {
+            background: #ffe3e3;
+            color: #c0392b;
+            border: none;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-delete:hover { background: #ffcaca; }
+        .empty { color: #777; }
+    </style>
+</head>
+<body>
+    <h1>Áudios Armazenados</h1>
+    <p class="subtitle">Sistema Cliente/Servidor em Camadas para Processamento de Áudio</p>
+
+    {% if audios %}
+        {% for audio in audios %}
+        <div class="card" id="card-{{ audio.id }}">
+            <div class="card-header">
+                <h2>{{ audio.original_name }}</h2>
+                <span class="badge">{{ audio.processing_type }}</span>
+            </div>
+            <p class="meta">
+                ID: {{ audio.id }} &middot;
+                {{ audio.duration_sec | round(2) if audio.duration_sec else "?" }}s &middot;
+                {{ audio.sample_rate or "?" }} Hz &middot;
+                {{ audio.channels or "?" }} canal(is) &middot;
+                {{ audio.size_bytes }} bytes &middot;
+                {{ audio.created_at }}
+            </p>
+
+            <div class="players">
+                <div>
+                    <h3>Original</h3>
+                    <audio controls preload="none" src="/audios/carregar-audio/{{ audio.id }}/original"></audio>
+                    <img loading="lazy" src="/audios/carregar-imagem/{{ audio.id }}/original" alt="Forma de onda original">
+                </div>
+                <div>
+                    <h3>Processado ({{ audio.processing_type }})</h3>
+                    <audio controls preload="none" src="/audios/carregar-audio/{{ audio.id }}/processed"></audio>
+                    <img loading="lazy" src="/audios/carregar-imagem/{{ audio.id }}/processed" alt="Forma de onda processada">
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn-delete" onclick="deletarAudio('{{ audio.id }}')">Excluir</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">Nenhum áudio enviado ainda.</p>
+    {% endif %}
+
+    <script>
+        async function deletarAudio(audioId) {
+            if (!confirm("Mover este áudio para a lixeira?")) return;
+
+            const resp = await fetch(`/audios/deletar-audio/${audioId}`, { method: "DELETE" });
+            if (resp.ok) {
+                document.getElementById(`card-${audioId}`).remove();
+            } else {
+                const data = await resp.json().catch(() => ({}));
+                alert("Erro ao excluir: " + (data.detail || resp.statusText));
+            }
+        }
+    </script>
+</body>
+</html>

@@ -6,6 +6,7 @@ import uuid
 from services.audio_repository import create_audio
 import json
 import hashlib
+import shutil
 
 def execute_ffmpeg(command):
     result = subprocess.run(
@@ -262,5 +263,29 @@ async def processor_audio(db, audio, processing_type, speed=None, bitrate=None):
         "id_audio": id_audio,
         "processing_type": processing_type
     }
+
+def move_audio_to_trash(audio):
+    """
+    Move a pasta inteira do áudio (original/, processed/ e meta.json) de
+    storage/{data}/{uuid}/ para trash/{data}/{uuid}/, ao invés de apagar
+    o arquivo de fato do disco. Conforme especificado no PDF:
+    "O diretório trash/ armazena temporariamente arquivos marcados para exclusão."
+    """
+    # audio.path_original é algo como storage/{data}/{uuid}/original/audio.ext
+    audio_folder = Path(audio.path_original).parent.parent  # storage/{data}/{uuid}
+    date_folder = audio_folder.parent.name                  # {data}
+
+    if not audio_folder.exists():
+        raise ValueError("Pasta do áudio não encontrada no disco")
+
+    trash_destination = Path("trash") / date_folder / audio_folder.name
+    trash_destination.parent.mkdir(parents=True, exist_ok=True)
+
+    if trash_destination.exists():
+        shutil.rmtree(trash_destination)
+
+    shutil.move(str(audio_folder), str(trash_destination))
+    return str(trash_destination)
+
 
 

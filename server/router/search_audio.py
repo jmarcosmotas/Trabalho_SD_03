@@ -9,6 +9,8 @@ from services.audio_repository import get_all_audios, get_audio_by_id
 from services.get_audio import get_load_audios, get_load_image
 from pathlib import Path
 from uuid import UUID
+from services.audio_repository import get_all_audios, get_audio_by_id, delete_audio
+from services.audio_processor import move_audio_to_trash  
 
 router = APIRouter()
 
@@ -138,6 +140,32 @@ def load_image(audio_id: UUID, tipo: str, db: Session = Depends(get_db)):
         filename=Path(path_image).name
     )
     
+# ----------EXCLUI UM AUDIO (MOVE PARA A LIXEIRA)----------
+# o usuário envia na URL:
+# - audio_id → UUID que identifica o áudio.
+#
+# O áudio não é apagado do disco imediatamente: a pasta inteira
+# (original/, processed/, meta.json) é movida para trash/{data}/{uuid}/
+# e o registro é removido do banco de dados.
+#
+# EXEMPLO USANDO O CURL:
+# curl -X DELETE http://localhost:8080/audios/deletar-audio/e0d21174-869b-4060-ac37-ea885606b4b6
 
+@router.delete("/deletar-audio/{audio_id}")
+def delete_audio_route(audio_id: UUID, db: Session = Depends(get_db)):
+    audio = get_audio_by_id(db, audio_id)
+    if not audio:
+        raise HTTPException(status_code=404, detail="Áudio não encontrado")
+
+    try:
+        move_audio_to_trash(audio)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Falha ao mover para a lixeira: {e}")
+
+    delete_audio(db, audio_id)
+
+    return {"detail": "Áudio movido para a lixeira e removido do banco de dados"}
     
     
