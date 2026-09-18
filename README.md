@@ -112,16 +112,16 @@ Trabalho_SD_03
 ```
 ## Configuração do banco de dados.
 
-![Tela principal](.github\Diagrama_bd.png)
+![Tela principal](.github/Diagrama_bd.png)
 
 ## Prints das Interfaces
 
 ### Interface Web
-
-![Tela principal](.github\Interface_web.png)
+![Tela principal](.github/Interface_web.png)
 
 ### Interface do cliente (GUI com PySide6)
 
-![Tela principal](.github\Interface_cliente_01.png)
-![Tela principal](.github\Interface_cliente_02.png)
+![Interface do cliente](.github/Interface_cliente_01.png)
+
+![Interface do cliente](.github/Interface_cliente_02.png)
 
