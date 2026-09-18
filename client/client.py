@@ -1,20 +1,3 @@
-# ---------------------------------------------------------------------------
-# Cliente GUI (PySide6) - Atividade 3: Sistema Cliente/Servidor em Camadas
-# ---------------------------------------------------------------------------
-# Integra com as rotas do servidor FastAPI (receive_audio.py / search_audio.py):
-#   POST   /audios/receber-audio
-#   GET    /audios/listar-todos-audios
-#   GET    /audios/busca-audio/{audio_id}
-#   GET    /audios/carregar-audio/{audio_id}/{tipo}
-#   GET    /audios/carregar-imagem/{audio_id}/{tipo}
-#   DELETE /audios/deletar-audio/{audio_id}
-#
-# Dependências:
-#   pip install PySide6 requests
-#
-# Ajuste BASE_URL abaixo para o endereço/porta real do servidor.
-# ---------------------------------------------------------------------------
-
 import sys
 import os
 import mimetypes
@@ -43,10 +26,6 @@ PROCESSING_TYPES = [
     ("converter", "Converter formato (mp3 <-> wav)"),
 ]
 
-
-# ---------------------------------------------------------------------------
-# Worker genérico para não travar a UI durante chamadas de rede
-# ---------------------------------------------------------------------------
 class Worker(QObject):
     finished = Signal(object)
     error = Signal(str)
@@ -80,9 +59,6 @@ def run_in_thread(parent, fn, on_success, on_error, *args, **kwargs):
     worker.error.connect(worker.deleteLater)
     thread.finished.connect(thread.deleteLater)
 
-    # mantém referência a thread E worker para não serem coletados pelo GC
-    # antes da operação terminar (bug clássico: sem isso, o worker pode ser
-    # destruído em segundo plano e o sinal de conclusão nunca chega na UI)
     parent._threads = getattr(parent, "_threads", [])
     parent._threads.append((thread, worker))
 
@@ -96,10 +72,6 @@ def run_in_thread(parent, fn, on_success, on_error, *args, **kwargs):
     thread.start()
     return thread
 
-
-# ---------------------------------------------------------------------------
-# Funções que conversam com a API (rodam dentro das threads)
-# ---------------------------------------------------------------------------
 def _raise_with_server_detail(resp):
     """Levanta o erro HTTP incluindo o campo 'detail' que o FastAPI devolveu,
     em vez de só o código de status genérico."""
@@ -117,9 +89,7 @@ def _raise_with_server_detail(resp):
 
 
 def api_upload(file_path, processing_type, speed, bitrate):
-    # Sem informar o content_type explicitamente, o requests não manda o
-    # cabeçalho Content-Type nessa parte do multipart, e o Starlette recebe
-    # audio.content_type como None/"" no servidor -> violava NOT NULL no banco.
+
     content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
     with open(file_path, "rb") as f:
         files = {"audio": (os.path.basename(file_path), f, content_type)}

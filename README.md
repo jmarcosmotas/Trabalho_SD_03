@@ -73,3 +73,55 @@ python client.py
 ```
 
  **Importante:** o servidor FastAPI precisa estar rodando antes de abrir o cliente (veja a seção de execução do servidor). Se o endereço do servidor for diferente de `localhost:8080`, ajuste a constante `BASE_URL` no topo do `client.py` antes de executar.
+
+## Processamento de Áudio Disponivel
+
+- **Normalização de volume:** ajusta o nível de volume do áudio.
+- **Conversão para mono:** converte o áudio para um único canal.
+- **Alteração da velocidade de reprodução:** aumenta ou reduz a velocidade do áudio.
+- **Redução da taxa de bits:** diminui o bitrate para reduzir o tamanho do arquivo.
+- **Conversão de formato:** permite converter o áudio para diferentes formatos.
+
+## Estrutura de Arquivos
+
+```
+Trabalho_SD_03
+├─ client
+│  └─ client.py
+├─ docker-compose.yml
+├─ Dockerfile
+├─ README.md
+├─ requirements.txt
+└─ server
+   ├─ database
+   │  ├─ database.py
+   │  ├─ init_db.py
+   │  └─ models.py
+   ├─ main.py
+   ├─ router
+   │  ├─ receive_audio.py
+   │  ├─ search_audio.py
+   │  └─ web.py
+   ├─ services
+   │  ├─ audio_processor.py
+   │  ├─ audio_repository.py
+   │  └─ get_audio.py
+   └─ templates
+      └─ index.html
+
+```
+## Configuração do banco de dados.
+
+![Tela principal](.github\Diagrama_bd.png)
+
+## Prints das Interfaces
+
+### Interface Web
+
+![Tela principal](.github\Interface_web.png)
+
+### Interface do cliente (GUI com PySide6)
+
+![Tela principal](.github\Interface_cliente_01.png)
+![Tela principal](.github\Interface_cliente_02.png)
+
