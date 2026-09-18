@@ -15,7 +15,7 @@ O objetivo deste trabalho é desenvolver um sistema cliente/servidor em três ca
 - ####  SQLAlchemy
 - ####  Dois computadores distintos
 
-## Como Executar
+## Como Executar o Servidor FastAPI
 ### Pré-requisitos
 
 - Docker instalado na máquina
@@ -34,3 +34,42 @@ Para remover os containers em execução:
 docker compose down
 ```
 
+## Como Executar o Cliente PySide6
+
+### 1. Crie um ambiente virtual Python
+
+```bash
+python -m venv .venv
+```
+
+### 2. Ative o ambiente virtual
+
+**Windows (cmd/PowerShell):**
+```bash
+.venv\Scripts\activate
+```
+
+**Linux/macOS:**
+```bash
+source .venv/bin/activate
+```
+
+### 3. Instale as dependências
+
+```bash
+pip install PySide6 requests
+```
+
+### 4. Acesse a pasta do cliente
+
+```bash
+cd client
+```
+
+### 5. Execute o aplicativo
+
+```bash
+python client.py
+```
+
+ **Importante:** o servidor FastAPI precisa estar rodando antes de abrir o cliente (veja a seção de execução do servidor). Se o endereço do servidor for diferente de `localhost:8080`, ajuste a constante `BASE_URL` no topo do `client.py` antes de executar.
